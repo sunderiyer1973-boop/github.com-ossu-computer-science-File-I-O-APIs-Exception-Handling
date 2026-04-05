@@ -1,0 +1,57 @@
+menu = {
+  "PANEER Tikka":  {"category": "Starters", "price": 180.00, "available": True},
+
+  "Chicken Wings": {"category": "Starters", "price": 220.00, "available": False},
+
+  "Veg Soup":    {"category": "Starters", "price": 120.00, "available": True},
+
+  "Butter Chicken": {"category": "Mains",   "price": 320.00, "available": True},
+
+  "Dal Tadka":   {"category": "Mains",   "price": 180.00, "available": True},
+
+  "Veg Biryani":  {"category": "Mains",   "price": 250.00, "available": True},
+
+  "Garlic Naan":  {"category": "Mains",   "price": 40.00, "available": True},
+
+  "Gulab Jamun":  {"category": "Desserts", "price": 90.00, "available": True},
+
+  "Rasgula":    {"category": "Desserts", "price": 80.00, "available": True},
+
+  "Ice -Cream":   {"category": "Desserts", "price": 110.00, "available": False},
+
+}
+# -------------------------------
+
+# 1: Exploring the Menu
+
+# -------------------------------
+
+print("\n===== MENU BY CATEGORY =====\n")
+
+# 1: Get unique categories
+
+categories = set(item["category"] for item in menu.values())
+
+# 2: Loop through categories
+
+for category in categories:
+
+  print(f"===== {category} =====")
+
+  for item_name, details in menu.items():
+
+    if details["category"] == category:
+
+      price = details["price"]
+
+      status = "Available" if details["available"] else "Unavailable"
+
+      print(f"{item_name:<20} ₹{price:>6.2f}  [{status}]")
+
+  print() # blank line
+
+============================================================================================================================================================
+
+
+
+
