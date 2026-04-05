@@ -453,6 +453,113 @@ while True:
     except Exception as e:
         print("Error:", e)
 
+=======================================================================================================================================================
+
+
+import requests
+from datetime import datetime
+
+LOG_FILE = "error_log.txt"
+
+
+# ===============================
+# Logger Function
+# ===============================
+
+def log_error(function_name, error_type, message):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    log_entry = f"[{timestamp}] ERROR in {function_name}: {error_type} — {message}\n"
+    
+    with open(LOG_FILE, "a") as file:
+        file.write(log_entry)
+
+
+# ===============================
+# Part 1 — Trigger ConnectionError
+# ===============================
+
+def fetch_products():
+    try:
+        # Intentionally wrong URL to trigger error
+        response = requests.get("https://this-host-does-not-exist-xyz.com/api", timeout=5)
+        response.raise_for_status()
+
+    except requests.exceptions.ConnectionError:
+        log_error(
+            "fetch_products",
+            "ConnectionError",
+            "No connection could be made"
+        )
+        print("Connection error logged.")
+
+    except Exception as e:
+        log_error("fetch_products", "Exception", str(e))
+
+
+# ===============================
+# Part 2 — Trigger HTTP 404 Error
+# ===============================
+
+def lookup_product():
+    try:
+        product_id = 999  # Non-existent ID
+        url = f"https://dummyjson.com/products/{product_id}"
+        
+        response = requests.get(url, timeout=5)
+
+        # IMPORTANT: 404 is NOT exception → manual check
+        if response.status_code != 200:
+            log_error(
+                "lookup_product",
+                "HTTPError",
+                f"{response.status_code} Not Found for product ID {product_id}"
+            )
+            print("HTTP error logged.")
+        else:
+            data = response.json()
+            print(data)
+
+    except requests.exceptions.ConnectionError:
+        log_error(
+            "lookup_product",
+            "ConnectionError",
+            "No connection"
+        )
+
+    except requests.exceptions.Timeout:
+        log_error(
+            "lookup_product",
+            "Timeout",
+            "Request timed out"
+        )
+
+    except Exception as e:
+        log_error("lookup_product", "Exception", str(e))
+
+
+# ===============================
+# Run both cases
+# ===============================
+
+print("===== Running Task 4 =====")
+
+fetch_products()
+lookup_product()
+
+
+# ===============================
+# Display Log File Content
+# ===============================
+
+print("\n===== Error Log Contents =====")
+
+try:
+    with open(LOG_FILE, "r") as file:
+        print(file.read())
+except FileNotFoundError:
+    print("Log file not found.")
+
 
 
 
