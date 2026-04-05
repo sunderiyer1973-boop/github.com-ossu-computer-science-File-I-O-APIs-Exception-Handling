@@ -1,56 +1,459 @@
-menu = {
-  "PANEER Tikka":  {"category": "Starters", "price": 180.00, "available": True},
+Task 1 — File Read & Write Basics
+========================================================
 
-  "Chicken Wings": {"category": "Starters", "price": 220.00, "available": False},
 
-  "Veg Soup":    {"category": "Starters", "price": 120.00, "available": True},
 
-  "Butter Chicken": {"category": "Mains",   "price": 320.00, "available": True},
+file_name = "python_notes.txt"
 
-  "Dal Tadka":   {"category": "Mains",   "price": 180.00, "available": True},
 
-  "Veg Biryani":  {"category": "Mains",   "price": 250.00, "available": True},
 
-  "Garlic Naan":  {"category": "Mains",   "price": 40.00, "available": True},
+# initial content
 
-  "Gulab Jamun":  {"category": "Desserts", "price": 90.00, "available": True},
+with open(file_name, "w", encoding="utf-8") as file:
 
-  "Rasgula":    {"category": "Desserts", "price": 80.00, "available": True},
+   file.write("Topic 1: Variables store data. Python is dynamically typed.\n")
 
-  "Ice -Cream":   {"category": "Desserts", "price": 110.00, "available": False},
+   file.write("Topic 2: Lists are ordered and mutable.\n")
+
+   file.write("Topic 3: Dictiionaries store key-value pairs.\n")
+
+   file.write("Topic 4: Loops automate repetitive tasks.\n")
+
+   file.write("Topic 5: Exception handling prevents crashes.\n")
+
+
+
+print("Data written Sucessfully.")
+
+
+
+# Appending additional lines
+
+with open(file_name, "a", encoding="utf-8") as file:
+
+   file.write("Topic 6: Functions help reuse code efficiently.\n")
+
+   file.write("Topic 7: Modules help organize code into files.\n")
+
+
+
+print("Lines appended successfully.")
+
+
+
+# -------------------------------
+
+# Part B — Read & Process
+
+# -------------------------------
+
+
+
+try:
+
+   with open(file_name, "r", encoding="utf-8") as file:
+
+       lines = file.readlines()
+
+
+
+   print("\n--- File Content ---")
+
+
+
+   # Print numbered lines
+
+   for index, line in enumerate(lines, start=1):
+
+       print(f"{index}. {line.strip()}")
+
+
+
+   # Count total lines
+
+   total_lines = len(lines)
+
+   print(f"\nTotal number of lines: {total_lines}")
+
+
+
+   # Keyword search
+
+   keyword = input("\nEnter a keyword to search: ").lower()
+
+   found = False
+
+
+
+   print("\n--- Search Results ---")
+
+   for index, line in enumerate(lines, start=1):
+
+       if keyword in line.lower():
+
+           print(f"{index}. {line.strip()}")
+
+           found = True
+
+
+
+   if not found:
+
+       print("No matching lines found.")
+
+
+
+except FileNotFoundError:
+
+   print("Error: File not found.")
+
+except Exception as e:
+
+   print(f"An unexpected error occurred: {e}")
+
+=======================================================================================================================
+
+Task2 - API integration
+
+
+
+
+
+{
+
+ "title": "My Custom Product",
+
+ "price": 999,
+
+ "category": "electronics",
+
+ "description": "A product I created via API"
 
 }
+
+=============================================================================================================================
+
+import requests
+
+
+
+BASE_URL = "https://dummyjson.com/products"
+
+
+
 # -------------------------------
 
-# 1: Exploring the Menu
+# Fetch Products
 
 # -------------------------------
 
-print("\n===== MENU BY CATEGORY =====\n")
 
-# 1: Get unique categories
 
-categories = set(item["category"] for item in menu.values())
+print("\n===== 1: FETCH PRODUCTS =====\n")
 
-# 2: Loop through categories
 
-for category in categories:
 
-  print(f"===== {category} =====")
+try:
 
-  for item_name, details in menu.items():
+  response = requests.get(f"{BASE_URL}?limit=20")
 
-    if details["category"] == category:
+  response.raise_for_status()
 
-      price = details["price"]
 
-      status = "Available" if details["available"] else "Unavailable"
 
-      print(f"{item_name:<20} ₹{price:>6.2f}  [{status}]")
+  data = response.json()
 
-  print() # blank line
+  products = data.get("products", [])
 
-============================================================================================================================================================
+
+
+  print(f"{'ID':<5} {'Title':<30} {'Category':<15} {'Price':<10} {'Rating':<6}")
+
+  print("-" * 75)
+
+
+
+  for p in products:
+
+    print(f"{p['id']:<5} {p['title']:<30} {p['category']:<15} ${p['price']:<10} {p['rating']:<6}")
+
+
+
+except requests.exceptions.RequestException as e:
+
+  print("❌ Error fetching products:", e)
+
+  products = [] # fallback
+
+
+
+# -------------------------------
+
+# Filter & Sort
+
+# -------------------------------
+
+
+
+print("\n===== 2: FILTERED PRODUCTS (Rating ≥ 4.5) =====\n")
+
+
+
+try:
+
+  filtered = [p for p in products if p.get("rating", 0) >= 4.5]
+
+
+
+  filtered_sorted = sorted(filtered, key=lambda x: x.get("price", 0), reverse=True)
+
+
+
+  if filtered_sorted:
+
+    for p in filtered_sorted:
+
+      print(f"{p['title']:<30} ${p['price']:<10} Rating: {p['rating']}")
+
+  else:
+
+    print("No products found with rating ≥ 4.5")
+
+
+
+except Exception as e:
+
+  print("❌ Error during filtering/sorting:", e)
+
+
+
+# -------------------------------
+
+# Category: Laptops
+
+# -------------------------------
+
+
+
+print("\n===== 3: LAPTOPS CATEGORY =====\n")
+
+
+
+try:
+
+  response = requests.get(f"{BASE_URL}/category/laptops")
+
+  response.raise_for_status()
+
+
+
+  laptops = response.json().get("products", [])
+
+
+
+  for p in laptops:
+
+    print(f"{p['title']} — ${p['price']}")
+
+
+
+except requests.exceptions.RequestException as e:
+
+  print("❌ Error fetching laptops:", e)
+
+
+
+# -------------------------------
+
+# POST Request
+
+# -------------------------------
+
+
+
+print("\n===== 4: ADD PRODUCT (POST) =====\n")
+
+
+
+try:
+
+  new_product = {
+
+    "title": "My Custom Product",
+
+    "price": 999,
+
+    "category": "electronics",
+
+    "description": "A product I created via API"
+
+  }
+
+
+
+  response = requests.post(f"{BASE_URL}/add", json=new_product)
+
+  response.raise_for_status()
+
+
+
+  result = response.json()
+
+
+
+  print("✅ Product created successfully (simulated):\n")
+
+  print(result)
+
+
+
+except requests.exceptions.RequestException as e:
+
+  print("❌ Error in POST request:", e)
+
+
+
+====================================================================================
+
+# -------------------------------
+# Task 3 — Exception Handling
+# -------------------------------
+
+import requests
+
+# ===============================
+# Part A — Guarded Calculator
+# ===============================
+
+def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return "Error: Cannot divide by zero"
+    except TypeError:
+        return "Error: Invalid input types"
+
+print("===== Part A: Safe Divide =====")
+print(safe_divide(10, 2))
+print(safe_divide(10, 0))
+print(safe_divide("ten", 2))
+
+
+# ===============================
+# Part B — Guarded File Reader
+# ===============================
+
+def read_file_safe(filename):
+    try:
+        with open(filename, "r") as file:
+            content = file.read()
+            return content
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
+    finally:
+        print("File operation attempt complete.")
+
+print("\n===== Part B: File Reader =====")
+
+print("\nReading existing file:")
+print(read_file_safe("python_notes.txt"))
+
+print("\nReading missing file:")
+read_file_safe("ghost_file.txt")
+
+
+# ===============================
+# Part C — Robust API Calls
+# ===============================
+
+BASE_URL = "https://dummyjson.com/products"
+
+print("\n===== Part C: API Calls =====")
+
+# Example GET
+try:
+    response = requests.get(f"{BASE_URL}?limit=5", timeout=5)
+    response.raise_for_status()
+    data = response.json()
+
+    for p in data.get("products", []):
+        print(p["title"], "-", p["price"])
+
+except requests.exceptions.ConnectionError:
+    print("Connection failed. Please check your internet.")
+except requests.exceptions.Timeout:
+    print("Request timed out. Try again later.")
+except Exception as e:
+    print("Error:", e)
+
+
+# Example POST
+try:
+    new_product = {
+        "title": "Test Product",
+        "price": 500,
+        "category": "test"
+    }
+
+    response = requests.post(f"{BASE_URL}/add", json=new_product, timeout=5)
+    response.raise_for_status()
+
+    print("\nPOST Response:")
+    print(response.json())
+
+except requests.exceptions.ConnectionError:
+    print("Connection failed. Please check your internet.")
+except requests.exceptions.Timeout:
+    print("Request timed out. Try again later.")
+except Exception as e:
+    print("Error:", e)
+
+
+# ===============================
+# Part D — Input Validation Loop
+# ===============================
+
+print("\n===== Part D: Product Lookup =====")
+
+while True:
+    user_input = input("\nEnter a product ID (1–100) or 'quit': ")
+
+    if user_input.lower() == "quit":
+        print("Exiting program.")
+        break
+
+    # Validate integer
+    try:
+        product_id = int(user_input)
+    except ValueError:
+        print("⚠ Invalid input. Please enter a number.")
+        continue
+
+    # Validate range
+    if product_id < 1 or product_id > 100:
+        print("⚠ Please enter a number between 1 and 100.")
+        continue
+
+    # API call
+    try:
+        response = requests.get(f"{BASE_URL}/{product_id}", timeout=5)
+
+        if response.status_code == 404:
+            print("Product not found.")
+        elif response.status_code == 200:
+            product = response.json()
+            print(f"Product: {product['title']} — ₹{product['price']}")
+        else:
+            print(f"Unexpected status code: {response.status_code}")
+
+    except requests.exceptions.ConnectionError:
+        print("Connection failed. Please check your internet.")
+    except requests.exceptions.Timeout:
+        print("Request timed out. Try again later.")
+    except Exception as e:
+        print("Error:", e)
+
+
 
 
 
